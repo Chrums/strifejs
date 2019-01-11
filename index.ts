@@ -139,8 +139,10 @@ scene.entities.remove(e0);
 
 let hierarchies = scene.components.all(Hierarchy);
 if (hierarchies) {
-    hierarchies.forEach((hierarchy: Hierarchy): void => console.log(hierarchy.entity.id, hierarchy.parent ? hierarchy.parent.id : 'no parent', hierarchy.children.map(child => child.id).join(',')))
+    hierarchies.forEach((hierarchy: Hierarchy): void => console.log(hierarchy.entity.id, hierarchy.parent ? hierarchy.parent.id : 'no parent', hierarchy.children.map((child: Entity) => child.id).join(',')))
 }
+
+
 
 // scene.register(Body);
 
@@ -159,7 +161,7 @@ if (hierarchies) {
 
 
 
-// const m4 = Matrix4.Identity;
-// m4.translate(new Vector3(2.0, 0.0, 0.0));
-// m4.rotateAxis(Math.PI / 4.0, Vector3.UnitY);
-// console.log(m4.translation);
+const v3 = Vector3.UnitX;
+
+const m4 = Matrix4.Identity;
+console.log(m4.toString());
