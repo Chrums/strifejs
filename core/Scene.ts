@@ -1,6 +1,6 @@
 import Component, { IComponent } from '@core/Component';
 import Dispatcher from '@core/Dispatcher';
-import Entity from '@core/Entity';
+import Entity, { IEntity } from '@core/Entity';
 import Event from '@core/Event';
 import Storage, { Default as DefaultStorage, IStorage } from '@core/Storage';
 import System, { Default as DefaultSystem, ISystem } from '@core/System';
@@ -13,22 +13,24 @@ export class EntityRemovedEvent extends Event {
     public static Priority: number = 0;
 }
 
-class Entities {
+class Entities<E extends Entity> {
     
+    private type: IEntity<any>;
     private scene: Scene;
     
-    public constructor(scene: Scene) {
+    public constructor(scene: Scene, type?: IEntity<any>) {
         this.scene = scene;
+        this.type = type || Entity;
     }
     
-    public add(): Entity {
-        const entity = new Entity(this.scene);
+    public add(): E {
+        const entity = new this.type(this.scene);
         const event = new EntityAddedEvent(entity);
         this.scene.dispatcher.emit(event);
         return entity;
     }
     
-    public remove(entity: Entity): boolean {
+    public remove(entity: E): boolean {
         const event = new EntityRemovedEvent(entity);
         this.scene.dispatcher.emit(event);
         return this.scene.components.remove(entity);
@@ -156,12 +158,16 @@ class Systems {
     
 }
 
-export default class Scene {
+export default class Scene<E extends Entity = Entity> {
     
-    public entities: Entities = new Entities(this);
+    public entities: Entities<E>;
     public components: Components = new Components(this);
     public systems: Systems = new Systems(this);
     public dispatcher: Dispatcher = new Dispatcher();
+    
+    public constructor(entityType?: IEntity<E>) {
+        this.entities = new Entities<E>(this, entityType);
+    }
     
     public register<C extends Component>(type: IComponent<C>): void {
         this.components.register(type);

@@ -13,6 +13,8 @@ import Hierarchy from '@common/components/Hierarchy';
 import Transform from '@common/components/Transform';
 import Core from '@common/systems/Core';
 
+import CustomEntity from '@common/core/Entity';
+
 class UpdateEvent extends Event {
     
     public static Priority: number = 1024;
@@ -117,7 +119,7 @@ class PhysicsSystem extends System {
     
 }
 
-const scene = new Scene();
+const scene = new Scene(CustomEntity);
 
 scene.systems.add(Core);
 
@@ -125,7 +127,6 @@ scene.register(Hierarchy);
 scene.register(Transform);
 
 const e0 = scene.entities.add();
-const h0 = e0.components.get(Hierarchy) as Hierarchy;
 
 const e01 = scene.entities.add();
 e01.hierarchy.move(e0);
@@ -161,7 +162,7 @@ if (hierarchies) {
 
 
 
-const v3 = Vector3.UnitX;
+// const v3 = Vector3.UnitX;
 
-const m4 = Matrix4.Identity;
-console.log(m4.toString());
+// const m4 = Matrix4.Identity;
+// console.log(m4.toString());

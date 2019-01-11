@@ -167,6 +167,33 @@ class Transform extends _core_Component__WEBPACK_IMPORTED_MODULE_1__["default"] 
 
 /***/ }),
 
+/***/ "./common/core/Entity.ts":
+/*!*******************************!*\
+  !*** ./common/core/Entity.ts ***!
+  \*******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _core_Entity__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @core/Entity */ "./core/Entity.ts");
+/* harmony import */ var _common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @common/components/Hierarchy */ "./common/components/Hierarchy.ts");
+/* harmony import */ var _common_components_Transform__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @common/components/Transform */ "./common/components/Transform.ts");
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = (class extends _core_Entity__WEBPACK_IMPORTED_MODULE_0__["default"] {
+    get hierarchy() {
+        return this.components.get(_common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_1__["default"]);
+    }
+    get transform() {
+        return this.components.get(_common_components_Transform__WEBPACK_IMPORTED_MODULE_2__["default"]);
+    }
+});
+
+
+/***/ }),
+
 /***/ "./common/systems/Core.ts":
 /*!********************************!*\
   !*** ./common/systems/Core.ts ***!
@@ -301,10 +328,6 @@ class Dispatcher {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Entity; });
 /* harmony import */ var _core_Unique__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @core/Unique */ "./core/Unique.ts");
-/* harmony import */ var _common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @common/components/Hierarchy */ "./common/components/Hierarchy.ts");
-/* harmony import */ var _common_components_Transform__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @common/components/Transform */ "./common/components/Transform.ts");
-
-
 
 class Components {
     constructor(entity) {
@@ -325,12 +348,6 @@ class Entity extends _core_Unique__WEBPACK_IMPORTED_MODULE_0__["default"] {
         super();
         this.components = new Components(this);
         this.scene = scene;
-    }
-    get hierarchy() {
-        return this.components.get(_common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_1__["default"]);
-    }
-    get transform() {
-        return this.components.get(_common_components_Transform__WEBPACK_IMPORTED_MODULE_2__["default"]);
     }
 }
 
@@ -389,11 +406,12 @@ class EntityRemovedEvent extends _core_Event__WEBPACK_IMPORTED_MODULE_3__["defau
 }
 EntityRemovedEvent.Priority = 0;
 class Entities {
-    constructor(scene) {
+    constructor(scene, type) {
         this.scene = scene;
+        this.type = type || _core_Entity__WEBPACK_IMPORTED_MODULE_2__["default"];
     }
     add() {
-        const entity = new _core_Entity__WEBPACK_IMPORTED_MODULE_2__["default"](this.scene);
+        const entity = new this.type(this.scene);
         const event = new EntityAddedEvent(entity);
         this.scene.dispatcher.emit(event);
         return entity;
@@ -500,11 +518,11 @@ class Systems {
     }
 }
 class Scene {
-    constructor() {
-        this.entities = new Entities(this);
+    constructor(entityType) {
         this.components = new Components(this);
         this.systems = new Systems(this);
         this.dispatcher = new _core_Dispatcher__WEBPACK_IMPORTED_MODULE_1__["default"]();
+        this.entities = new Entities(this, entityType);
     }
     register(type) {
         this.components.register(type);
@@ -653,18 +671,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _core_Scene__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @core/Scene */ "./core/Scene.ts");
 /* harmony import */ var _core_Storage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @core/Storage */ "./core/Storage.ts");
 /* harmony import */ var _core_System__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @core/System */ "./core/System.ts");
-/* harmony import */ var _math_Matrix4__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @math/Matrix4 */ "./math/Matrix4.ts");
-/* harmony import */ var _math_Vector3__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @math/Vector3 */ "./math/Vector3.ts");
-/* harmony import */ var _common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @common/components/Hierarchy */ "./common/components/Hierarchy.ts");
-/* harmony import */ var _common_components_Transform__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @common/components/Transform */ "./common/components/Transform.ts");
-/* harmony import */ var _common_systems_Core__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @common/systems/Core */ "./common/systems/Core.ts");
+/* harmony import */ var _common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @common/components/Hierarchy */ "./common/components/Hierarchy.ts");
+/* harmony import */ var _common_components_Transform__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @common/components/Transform */ "./common/components/Transform.ts");
+/* harmony import */ var _common_systems_Core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @common/systems/Core */ "./common/systems/Core.ts");
+/* harmony import */ var _common_core_Entity__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @common/core/Entity */ "./common/core/Entity.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-
 
 
 
@@ -749,26 +765,25 @@ class PhysicsSystem extends _core_System__WEBPACK_IMPORTED_MODULE_4__["default"]
         scene.dispatcher.on(UpdateEvent)(this.update.bind(this));
     }
     update(event) {
-        const transforms = this.scene.components.all(_common_components_Transform__WEBPACK_IMPORTED_MODULE_8__["default"]);
+        const transforms = this.scene.components.all(_common_components_Transform__WEBPACK_IMPORTED_MODULE_6__["default"]);
         const bodies = this.scene.components.all(Body);
         if (bodies) {
             bodies.forEach((body) => console.log(body));
         }
     }
 }
-const scene = new _core_Scene__WEBPACK_IMPORTED_MODULE_2__["default"]();
-scene.systems.add(_common_systems_Core__WEBPACK_IMPORTED_MODULE_9__["default"]);
-scene.register(_common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_7__["default"]);
-scene.register(_common_components_Transform__WEBPACK_IMPORTED_MODULE_8__["default"]);
+const scene = new _core_Scene__WEBPACK_IMPORTED_MODULE_2__["default"](_common_core_Entity__WEBPACK_IMPORTED_MODULE_8__["default"]);
+scene.systems.add(_common_systems_Core__WEBPACK_IMPORTED_MODULE_7__["default"]);
+scene.register(_common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_5__["default"]);
+scene.register(_common_components_Transform__WEBPACK_IMPORTED_MODULE_6__["default"]);
 const e0 = scene.entities.add();
-const h0 = e0.components.get(_common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_7__["default"]);
 const e01 = scene.entities.add();
 e01.hierarchy.move(e0);
 const e02 = scene.entities.add();
 e02.hierarchy.move(e0);
 const e1 = scene.entities.add();
 scene.entities.remove(e0);
-let hierarchies = scene.components.all(_common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_7__["default"]);
+let hierarchies = scene.components.all(_common_components_Hierarchy__WEBPACK_IMPORTED_MODULE_5__["default"]);
 if (hierarchies) {
     hierarchies.forEach((hierarchy) => console.log(hierarchy.entity.id, hierarchy.parent ? hierarchy.parent.id : 'no parent', hierarchy.children.map((child) => child.id).join(',')));
 }
@@ -781,9 +796,9 @@ if (hierarchies) {
 // scene.dispatcher.emit(new UpdateEvent());
 // scene.dispatcher.emit(new RenderEvent());
 // scene.dispatcher.dispatch();
-const v3 = _math_Vector3__WEBPACK_IMPORTED_MODULE_6__["default"].UnitX;
-const m4 = _math_Matrix4__WEBPACK_IMPORTED_MODULE_5__["default"].Identity;
-console.log(m4.toString());
+// const v3 = Vector3.UnitX;
+// const m4 = Matrix4.Identity;
+// console.log(m4.toString());
 
 
 /***/ }),
@@ -949,7 +964,7 @@ class Matrix4 extends Float32Array {
         for (let i = 0; i < array.length; i += 4) {
             result.push(`  ${array.slice(i, i + 4).join(' ')}`);
         }
-        return `${this.constructor.name}\n${result.join('\n')}`;
+        return result.join('\n');
     }
     copy(m4) {
         gl_matrix__WEBPACK_IMPORTED_MODULE_0__["mat4"].copy(this, m4);
@@ -1150,7 +1165,7 @@ class Quaternion extends Float32Array {
         }
     }
     toString() {
-        return `${this.constructor.name}(${this.join(', ')})`;
+        return this.join(' ');
     }
     copy(q) {
         gl_matrix__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(this, q);
@@ -1370,7 +1385,7 @@ class Vector3 extends Float32Array {
         }
     }
     toString() {
-        return `${this.constructor.name}(${this.join(', ')})`;
+        return this.join(' ');
     }
     copy(v3) {
         gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(this, v3);

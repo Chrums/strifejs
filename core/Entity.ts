@@ -2,9 +2,6 @@ import Component, { IComponent } from '@core/Component';
 import Scene from '@core/Scene';
 import Unique from '@core/Unique';
 
-import Hierarchy from '@common/components/Hierarchy';
-import Transform from '@common/components/Transform';
-
 class Components {
     
     private entity: Entity;
@@ -32,17 +29,13 @@ export default class Entity extends Unique {
     public scene: Scene;
     public components: Components = new Components(this);
     
-    public get hierarchy(): Hierarchy {
-        return this.components.get(Hierarchy) as Hierarchy;
-    }
-    
-    public get transform(): Transform {
-        return this.components.get(Transform) as Transform;
-    }
-    
     public constructor(scene: Scene) {
         super();
         this.scene = scene;
     }
     
+}
+
+export interface IEntity<E extends Entity> {
+    new (scene: Scene): E;
 }
